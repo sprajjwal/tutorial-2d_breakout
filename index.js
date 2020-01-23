@@ -2,7 +2,7 @@
 /* eslint-disable no-alert */
 const difficulty = document.getElementById('difficulty');
 let speed = 4;
-
+let ballColor = `#${(Math.random() * 0xFFFFFF << 0).toString(16)}`;
 
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
@@ -16,7 +16,6 @@ difficulty.addEventListener('change', () => {
   speed = 4 * (difficulty.selectedIndex + 1);
   dx *= (difficulty.selectedIndex + 1);
   dy *= (difficulty.selectedIndex + 1);
-  console.log(speed);
 });
 
 const paddleHeight = 15;
@@ -64,7 +63,7 @@ function mouseMoveHandler(e) {
   if (relativeX > 0 && relativeX < canvas.width) {
     paddleX = relativeX - paddleWidth / 2;
     if (!gameRunning) {
-      x = relativeX ;
+      x = relativeX;
     }
   }
 }
@@ -72,12 +71,13 @@ function mouseMoveHandler(e) {
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
 
+
 document.addEventListener('mousemove', mouseMoveHandler, false);
 
 function drawBall() {
   ctx.beginPath();
   ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-  ctx.fillStyle = '#4c525c';
+  ctx.fillStyle = ballColor;
   ctx.fill();
   ctx.closePath();
 }
@@ -103,7 +103,11 @@ function drawBricks() {
         bricks[c][r].y = brickY;
         ctx.beginPath();
         ctx.rect(brickX, brickY, brickWidth, brickHeight);
-        ctx.fillStyle = color;
+        if ((c + r) % 5 !== 0) {
+          ctx.fillStyle = '#b87874';
+        } else {
+          ctx.fillStyle = color;
+        }
         ctx.fill();
         ctx.closePath();
       }
@@ -140,10 +144,13 @@ function collisionDetection() {
     for (let r = 0; r < brickRowCount; r += 1) {
       const b = bricks[c][r];
       if (b.status === 1) {
-        if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
+        // eslint-disable-next-line max-len
+        if (x > b.x - ballRadius && x < b.x + brickWidth + ballRadius && y > b.y - ballRadius && y < b.y + brickHeight + ballRadius) {
           dy = -dy;
           b.status = 0;
-          if (c % 2 === 0) {
+          // eslint-disable-next-line no-bitwise
+          ballColor = `#${(Math.random() * 0xFFFFFF << 0).toString(16)}`;
+          if (c % 3 === 0) {
             score += 10;
           } else {
             score += 1;
@@ -181,7 +188,7 @@ function draw() {
   if (y + dy < ballRadius) {
     dy = -dy;
   } else if (y + dy > canvas.height - ballRadius / 2) {
-    if (x > paddleX && x < paddleX + paddleWidth) {
+    if (x > paddleX - ballRadius && x < paddleX + paddleWidth + ballRadius) {
       // eslint-disable-next-line no-cond-assign
       if (y -= paddleHeight) {
         dy = -dy;
@@ -243,7 +250,6 @@ function moveBallAndPaddle() {
   requestAnimationFrame(moveBallAndPaddle);
 }
 
-// canvas.addEventListener('click', draw);
 
 function onClick() {
   if (gameRunning === false) {
@@ -253,3 +259,8 @@ function onClick() {
 }
 
 canvas.addEventListener('click', onClick);
+document.body.onkeypress = function (e) {
+  if (e.keyCode === 32) {
+    onClick();
+  }
+};
