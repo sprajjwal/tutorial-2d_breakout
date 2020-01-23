@@ -1,13 +1,25 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable no-alert */
+const difficulty = document.getElementById('difficulty');
+let speed = 4;
+
 
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
 const ballRadius = 10;
 let x = canvas.width / 2;
 let y = canvas.height - 30;
-let dx = 2;
-let dy = -2;
-const paddleHeight = 10;
+
+let dx = speed;
+let dy = -speed;
+difficulty.addEventListener('change', () => {
+  speed = 4 * (difficulty.selectedIndex + 1);
+  dx *= (difficulty.selectedIndex + 1);
+  dy *= (difficulty.selectedIndex + 1);
+  console.log(speed);
+});
+
+const paddleHeight = 15;
 const paddleWidth = 75;
 let paddleX = (canvas.width - paddleWidth) / 2;
 let rightPressed = false;
@@ -21,6 +33,7 @@ const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
 let lives = 3;
 let score = 0;
+let gameRunning = false;
 
 const bricks = [];
 for (let c = 0; c < brickColumnCount; c += 1) {
@@ -50,6 +63,9 @@ function mouseMoveHandler(e) {
   const relativeX = e.clientX - canvas.offsetLeft;
   if (relativeX > 0 && relativeX < canvas.width) {
     paddleX = relativeX - paddleWidth / 2;
+    if (!gameRunning) {
+      x = relativeX ;
+    }
   }
 }
 
@@ -108,6 +124,17 @@ function drawLives() {
   ctx.fillText(`Lives: ${lives}`, canvas.width - 65, 20);
 }
 
+function gameOver() {
+  for (let c = 0; c < brickColumnCount; c += 1) {
+    for (let r = 0; r < brickRowCount; r += 1) {
+      if (bricks[c][r].status === 1) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 function collisionDetection() {
   for (let c = 0; c < brickColumnCount; c += 1) {
     for (let r = 0; r < brickRowCount; r += 1) {
@@ -116,8 +143,12 @@ function collisionDetection() {
         if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
           dy = -dy;
           b.status = 0;
-          score += 1;
-          if (score === brickRowCount * brickColumnCount) {
+          if (c % 2 === 0) {
+            score += 10;
+          } else {
+            score += 1;
+          }
+          if (gameOver()) {
             alert('YOU WIN, CONGRATULATIONS!');
             document.location.reload();
             // clearInterval(interval); // Needed for Chrome to end game
@@ -127,6 +158,13 @@ function collisionDetection() {
     }
   }
 }
+
+// setup
+drawBricks();
+drawPaddle();
+drawBall();
+drawScore();
+drawLives();
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -142,7 +180,7 @@ function draw() {
   }
   if (y + dy < ballRadius) {
     dy = -dy;
-  } else if (y + dy > canvas.height - ballRadius) {
+  } else if (y + dy > canvas.height - ballRadius / 2) {
     if (x > paddleX && x < paddleX + paddleWidth) {
       // eslint-disable-next-line no-cond-assign
       if (y -= paddleHeight) {
@@ -150,6 +188,7 @@ function draw() {
       }
     } else {
       lives -= 1;
+      gameRunning = false;
       if (!lives) {
         alert('GAME OVER');
         document.location.reload();
@@ -157,8 +196,8 @@ function draw() {
       } else {
         x = canvas.width / 2;
         y = canvas.height - 30;
-        dx = 2;
-        dy = -2;
+        dx = speed;
+        dy = -speed;
         paddleX = (canvas.width - paddleWidth) / 2;
       }
     }
@@ -172,7 +211,45 @@ function draw() {
 
   x += dx;
   y += dy;
-  requestAnimationFrame(draw);
+
+  if (gameRunning) {
+    requestAnimationFrame(draw);
+  } else {
+    // eslint-disable-next-line no-use-before-define
+    y = canvas.height - paddleHeight - ballRadius;
+    moveBallAndPaddle();
+  }
 }
 
-draw();
+function moveBallAndPaddle() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBricks();
+  drawBall();
+  drawPaddle();
+  drawScore();
+  drawLives();
+  if (rightPressed && paddleX < canvas.width - paddleWidth) {
+    paddleX += 7;
+    x += 7;
+  } else if (leftPressed && paddleX > 0) {
+    paddleX -= 7;
+    x -= 7;
+  }
+  drawBall();
+
+  if (gameRunning) {
+    return;
+  }
+  requestAnimationFrame(moveBallAndPaddle);
+}
+
+// canvas.addEventListener('click', draw);
+
+function onClick() {
+  if (gameRunning === false) {
+    gameRunning = true;
+    draw();
+  }
+}
+
+canvas.addEventListener('click', onClick);
