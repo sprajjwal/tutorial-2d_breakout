@@ -35,7 +35,7 @@
 
     document.addEventListener("mousemove", mouseMoveHandler, false);
     function mouseMoveHandler(e) {
-        var relativeX = e.clientX - canvas.offsetLeft;
+        let relativeX = e.clientX - canvas.offsetLeft;
         if(relativeX > 0 && relativeX < canvas.width) {
             paddleX = relativeX - paddleWidth/2;
         }
@@ -60,7 +60,7 @@
     function drawBall() {
     ctx.beginPath();
     ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#0095DD";
+    ctx.fillStyle = "#4c525c";
     ctx.fill();
     ctx.closePath();
     }
@@ -68,7 +68,7 @@
     function drawPaddle() {
     ctx.beginPath();
     ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
-    ctx.fillStyle = "#0095DD";
+    ctx.fillStyle = "#9353b5";
     ctx.fill();
     ctx.closePath();
     }
@@ -78,10 +78,10 @@
         let ctr = 0
         for (let c = 0; c < brickColumnCount; c++) {
             for (let r = 0; r < brickRowCount; r++) {
-                // color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+                color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
                 if(bricks[c][r].status == 1) {
-                    var brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
-                    var brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
+                    let brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
+                    let brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
                     bricks[c][r].x = brickX;
                     bricks[c][r].y = brickY;
                     ctx.beginPath();
@@ -145,9 +145,9 @@
  
 
     function collisionDetection() {
-        for(var c=0; c<brickColumnCount; c++) {
-            for(var r=0; r<brickRowCount; r++) {
-                var b = bricks[c][r];
+        for(let c=0; c<brickColumnCount; c++) {
+            for(let r=0; r<brickRowCount; r++) {
+                let b = bricks[c][r];
                 if(b.status == 1) {
                     if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
                         dy = -dy;
