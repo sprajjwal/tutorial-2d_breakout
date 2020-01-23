@@ -197,6 +197,7 @@ function draw() {
       lives -= 1;
       gameRunning = false;
       if (!lives) {
+        drawLives();
         alert('GAME OVER');
         document.location.reload();
         // clearInterval(interval); // Needed for Chrome to end game
