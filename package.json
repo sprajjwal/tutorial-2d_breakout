@@ -1,0 +1,25 @@
+{
+  "name": "tutorial-2d_breakout",
+  "version": "1.0.0",
+  "description": "This is a tutorial followup of the [Mozilla developer tutorial](https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript) using HTML, CSS and vanilla JS.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sprajjwal/tutorial-2d_breakout.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sprajjwal/tutorial-2d_breakout/issues"
+  },
+  "homepage": "https://github.com/sprajjwal/tutorial-2d_breakout#readme",
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.20.0"
+  }
+}
