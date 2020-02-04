@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 /* eslint-disable max-len */
 /* eslint-disable no-shadow */
 /* eslint-disable max-classes-per-file */
@@ -13,6 +14,34 @@ let leftPressed = false;
 // let lives = 3;
 // let score = 0;
 // let gameRunning = false;
+
+
+class Sprite {
+  constructor(x, y, color = 'blue') {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+  }
+
+  render(ctx, a, b) {
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, a, b);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.closePath();
+  }
+}
+
+class Brick extends Sprite {
+  constructor(x, y, color = 'blue') {
+    super(x, y, color);
+    this.status = 1;
+  }
+
+  // render(ctx) {
+
+  // }
+}
 
 class Bricks {
   constructor(row = 4, column = 6) {
@@ -31,41 +60,37 @@ class Bricks {
     for (let c = 0; c < this.brickColumnCount; c += 1) {
       this.bricksArray[c] = [];
       for (let r = 0; r < this.brickRowCount; r += 1) {
-        this.bricksArray[c][r] = { x: 0, y: 0, status: 1 };
+        const brickX = (c * (this.brickWidth + this.brickPadding)) + this.brickOffsetLeft;
+        const brickY = (r * (this.brickHeight + this.brickPadding)) + this.brickOffsetTop;
+        // this.bricksArray[c][r] = { x: brickX, y: brickY, status: 1 };
+        let color;
+        if ((c + r) % 5 !== 0) {
+          color = '#9abdf5';
+        } else {
+          color = `#${(Math.random() * 0xFFFFFF << 0).toString(16)}`;
+        }
+        this.bricksArray[c][r] = new Brick(brickX, brickY, color);
       }
     }
   }
 
   draw(ctx) {
-    let color = '';
     for (let c = 0; c < this.brickColumnCount; c += 1) {
       for (let r = 0; r < this.brickRowCount; r += 1) {
         // eslint-disable-next-line no-bitwise
-        color = `#${(Math.random() * 0xFFFFFF << 0).toString(16)}`;
         if (this.bricksArray[c][r].status === 1) {
-          const brickX = (c * (this.brickWidth + this.brickPadding)) + this.brickOffsetLeft;
-          const brickY = (r * (this.brickHeight + this.brickPadding)) + this.brickOffsetTop;
-          this.bricksArray[c][r].x = brickX;
-          this.bricksArray[c][r].y = brickY;
-          ctx.beginPath();
-          ctx.rect(brickX, brickY, this.brickWidth, this.brickHeight);
-          if ((c + r) % 5 !== 0) {
-            ctx.fillStyle = '#b87874';
-          } else {
-            ctx.fillStyle = color;
-          }
-          ctx.fill();
-          ctx.closePath();
+          const brick = this.bricksArray[c][r];
+          brick.render(ctx, this.brickWidth, this.brickHeight);
         }
       }
     }
   }
 }
 
-class Ball {
+
+class Ball extends Sprite {
   constructor(x, y, radius, color = 'gray') {
-    this.x = x;
-    this.y = y;
+    super(x, y);
     this.dx = speed;
     this.dy = -speed;
     this.radius = radius;
@@ -86,20 +111,17 @@ class Ball {
   }
 }
 
-class Paddle {
+class Paddle extends Sprite {
   constructor(width = 75, height = 10) {
+    super((canvas.width - width) / 2, canvas.height - height);
     this.paddleHeight = height;
     this.paddleWidth = width;
     this.paddleSpeed = 7;
-    this.paddleX = (canvas.width - this.paddleWidth) / 2;
+    // this.x = (canvas.width - this.paddleWidth) / 2;
   }
 
   draw(ctx) {
-    ctx.beginPath();
-    ctx.rect(this.paddleX, canvas.height - this.paddleHeight, this.paddleWidth, this.paddleHeight);
-    ctx.fillStyle = '#9353b5';
-    ctx.fill();
-    ctx.closePath();
+    super.render(ctx, this.paddleWidth, this.paddleHeight);
   }
 }
 
@@ -136,11 +158,11 @@ class Game {
   moveBallAndPaddle(ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     this.makeFrame(ctx);
-    if (rightPressed && this.paddle.paddleX < canvas.width - this.paddle.paddleWidth) {
-      this.paddle.paddleX += this.paddle.paddleSpeed;
+    if (rightPressed && this.paddle.x < canvas.width - this.paddle.paddleWidth) {
+      this.paddle.x += this.paddle.paddleSpeed;
       this.ball.x += this.paddle.paddleSpeed;
-    } else if (leftPressed && this.paddle.paddleX > 0) {
-      this.paddle.paddleX -= this.paddle.paddleSpeed;
+    } else if (leftPressed && this.paddle.x > 0) {
+      this.paddle.x -= this.paddle.paddleSpeed;
       this.ball.x -= this.paddle.paddleSpeed;
     }
     this.ball.draw(ctx);
@@ -183,7 +205,7 @@ function keyUpHandler(e) {
 function mouseMoveHandler(e) {
   const relativeX = e.clientX - canvas.offsetLeft;
   if (relativeX > 0 && relativeX < canvas.width) {
-    game.paddle.paddleX = relativeX - game.paddle.paddleWidth / 2;
+    game.paddle.x = relativeX - game.paddle.paddleWidth / 2;
     if (!game.gameRunning) {
       game.ball.x = relativeX;
     }
@@ -248,7 +270,7 @@ function draw() {
     game.ball.dy = -game.ball.dy;
   } else if (game.ball.y + game.ball.dy > canvas.height - game.ball.radius / 2) {
     // eslint-disable-next-line max-len
-    if (game.ball.x > game.paddle.paddleX - game.ball.radius && game.ball.x < game.paddle.paddleX + game.paddle.paddleWidth + game.ball.radius) {
+    if (game.ball.x > game.paddle.x - game.ball.radius && game.ball.x < game.paddle.x + game.paddle.paddleWidth + game.ball.radius) {
       // eslint-disable-next-line no-cond-assign
       if (game.ball.y -= game.paddle.paddleHeight) {
         game.ball.dy = -game.ball.dy;
@@ -265,15 +287,15 @@ function draw() {
         game.ball.y = canvas.height - 30;
         game.ball.dx = speed;
         game.ball.dy = -speed;
-        game.paddle.paddleX = (canvas.width - game.paddle.paddleWidth) / 2;
+        game.paddle.x = (canvas.width - game.paddle.paddleWidth) / 2;
       }
     }
   }
 
-  if (rightPressed && game.paddle.paddleX < canvas.width - game.paddle.paddleWidth) {
-    game.paddle.paddleX += game.paddle.paddleSpeed;
-  } else if (leftPressed && game.paddle.paddleX > 0) {
-    game.paddle.paddleX -= game.paddle.paddleSpeed;
+  if (rightPressed && game.paddle.x < canvas.width - game.paddle.paddleWidth) {
+    game.paddle.x += game.paddle.paddleSpeed;
+  } else if (leftPressed && game.paddle.x > 0) {
+    game.paddle.x -= game.paddle.paddleSpeed;
   }
 
   game.ball.move();
