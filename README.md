@@ -4,4 +4,4 @@ This is a tutorial followup of the [Mozilla developer tutorial](https://develope
 
 ## Usage
 
-Download or clone this repo and just run the index.html file.
+Download or clone this repo and just run ```dist/index.html```
