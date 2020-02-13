@@ -1,13 +1,15 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-len */
 /* eslint-disable no-shadow */
-/* eslint-disable max-classes-per-file */
 /* eslint-disable no-use-before-define */
 /* eslint-disable no-alert */
 const difficulty = document.getElementById('difficulty');
 let speed = 4;
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
+const Bricks = require('./Bricks');
+const Paddle = require('./Paddle');
+const Ball = require('./Ball');
 
 let rightPressed = false;
 let leftPressed = false;
@@ -15,124 +17,14 @@ let leftPressed = false;
 // let score = 0;
 // let gameRunning = false;
 
-
-class Sprite {
-  constructor(x, y, color = 'blue') {
-    this.x = x;
-    this.y = y;
-    this.color = color;
-  }
-
-  render(ctx, a, b) {
-    ctx.beginPath();
-    ctx.rect(this.x, this.y, a, b);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.closePath();
-  }
-}
-
-class Brick extends Sprite {
-  constructor(x, y, color = 'blue') {
-    super(x, y, color);
-    this.status = 1;
-  }
-
-  // render(ctx) {
-
-  // }
-}
-
-class Bricks {
-  constructor(row = 4, column = 6) {
-    this.brickColumnCount = column;
-    this.brickRowCount = row;
-    this.brickWidth = 60;
-    this.brickHeight = 20;
-    this.brickPadding = 10;
-    this.brickOffsetTop = 30;
-    this.brickOffsetLeft = 30;
-    this.bricksArray = [];
-    this.setup();
-  }
-
-  setup() {
-    for (let c = 0; c < this.brickColumnCount; c += 1) {
-      this.bricksArray[c] = [];
-      for (let r = 0; r < this.brickRowCount; r += 1) {
-        const brickX = (c * (this.brickWidth + this.brickPadding)) + this.brickOffsetLeft;
-        const brickY = (r * (this.brickHeight + this.brickPadding)) + this.brickOffsetTop;
-        // this.bricksArray[c][r] = { x: brickX, y: brickY, status: 1 };
-        let color;
-        if ((c + r) % 5 !== 0) {
-          color = '#9abdf5';
-        } else {
-          color = `#${(Math.random() * 0xFFFFFF << 0).toString(16)}`;
-        }
-        this.bricksArray[c][r] = new Brick(brickX, brickY, color);
-      }
-    }
-  }
-
-  draw(ctx) {
-    for (let c = 0; c < this.brickColumnCount; c += 1) {
-      for (let r = 0; r < this.brickRowCount; r += 1) {
-        // eslint-disable-next-line no-bitwise
-        if (this.bricksArray[c][r].status === 1) {
-          const brick = this.bricksArray[c][r];
-          brick.render(ctx, this.brickWidth, this.brickHeight);
-        }
-      }
-    }
-  }
-}
-
-
-class Ball extends Sprite {
-  constructor(x, y, radius, color = 'gray') {
-    super(x, y);
-    this.dx = speed;
-    this.dy = -speed;
-    this.radius = radius;
-    this.color = color;
-  }
-
-  move() {
-    this.x += this.dx;
-    this.y += this.dy;
-  }
-
-  draw(ctx) {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.closePath();
-  }
-}
-
-class Paddle extends Sprite {
-  constructor(width = 75, height = 10) {
-    super((canvas.width - width) / 2, canvas.height - height);
-    this.paddleHeight = height;
-    this.paddleWidth = width;
-    this.paddleSpeed = 7;
-    // this.x = (canvas.width - this.paddleWidth) / 2;
-  }
-
-  draw(ctx) {
-    super.render(ctx, this.paddleWidth, this.paddleHeight);
-  }
-}
-
 class Game {
   constructor(ballRadius, brickRow = 4, brickColumn = 6, ballColor = 'gray', paddleWidth = 75, paddleHeight = 10) {
     this.lives = 3;
     this.score = 0;
     this.gameRunning = false;
     this.bricks = new Bricks(brickRow, brickColumn);
-    this.ball = new Ball(canvas.width / 2, canvas.height - paddleHeight - 10, ballRadius, ballColor);
-    this.paddle = new Paddle(paddleWidth, paddleHeight);
+    this.ball = new Ball(canvas.width / 2, canvas.height - paddleHeight - 10, ballRadius, ballColor, speed);
+    this.paddle = new Paddle(paddleWidth, paddleHeight, canvas);
   }
 
   drawScore(ctx) {
