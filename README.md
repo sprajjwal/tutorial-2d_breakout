@@ -5,3 +5,7 @@ This is a tutorial followup of the [Mozilla developer tutorial](https://develope
 ## Usage
 
 Download or clone this repo and just run ```dist/index.html```
+
+## How to play
+
+Select the difficulty, click on the game then hit Spacebar to launch the ball! Both the touchpad and the arrow keys can be used to control the paddle.
